@@ -102,7 +102,7 @@ export class RocksideApi {
   }
 
   async getIdentities(): Promise<string[]> {
-    const resp = await this.send(`/ethereum/${this.opts.network[1]}/identities`, 'GET', null);
+    const resp = await this.send(`/ethereum/${this.opts.network[1]}/smartwallets`, 'GET', null);
 
     if (resp.status != 200) {
       throw await this.extractError(resp);
@@ -112,8 +112,11 @@ export class RocksideApi {
     return json as string[];
   }
 
-  async createIdentity(): Promise<IdentityResponse> {
-    const resp = await this.send(`/ethereum/${this.opts.network[1]}/identities`, 'POST', {});
+  async createIdentity(forwarder: string, account: string): Promise<IdentityResponse> {
+    const resp = await this.send(`/ethereum/${this.opts.network[1]}/smartwallets`, 'POST', {
+      forwarder,
+      account
+    });
 
     if (resp.status != 201) {
       throw await this.extractError(resp);
