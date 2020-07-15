@@ -49,7 +49,7 @@ export declare class RocksideApi {
     private extractError;
     private send;
     getIdentities(): Promise<string[]>;
-    createIdentity(): Promise<IdentityResponse>;
+    createIdentity(forwarder: string, account: string): Promise<IdentityResponse>;
     getEOAs(): Promise<string[]>;
     createEOA(): Promise<{
         address: string;
