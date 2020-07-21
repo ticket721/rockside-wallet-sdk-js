@@ -5,6 +5,46 @@ export declare type RocksideApiOpts = {
     apikey?: string;
     network: RocksideNetwork;
 };
+export declare type RelayedTransactionResponse = {
+    transaction_hash: string;
+    tracking_id: string;
+};
+export declare type TransactionReceiptLog = {
+    address: string;
+    block_hash: string;
+    block_number: number;
+    data: string;
+    log_index: number;
+    removed: boolean;
+    topics: string[];
+    transaction_hash: string;
+    transaction_index: number;
+    id: string;
+};
+export declare type TransactionReceipt = {
+    status: number;
+    cumulative_gas_used: number;
+    logs: TransactionReceiptLog[];
+    transaction_hash: string;
+    contract_address: string;
+    gas_used: number;
+    block_hash: string;
+    block_number: number;
+    transaction_index: number;
+};
+export declare type TransactionInfosResponse = {
+    transaction_hash: string;
+    tracking_id: string;
+    from: string;
+    to: string;
+    data_length: number;
+    value: number;
+    gas: number;
+    gas_price: number;
+    chain_id: number;
+    receipt: TransactionReceipt;
+    status: "success" | "failure";
+};
 export declare type ExecuteTransaction = {
     relayer: string;
     from: string;
@@ -76,7 +116,8 @@ export declare class RocksideApi {
         nonce: number;
         relayer: string;
     }>;
-    relayTransaction(identity: string, tx: ExecuteTransaction): Promise<string>;
+    relayTransaction(identity: string, tx: ExecuteTransaction): Promise<RelayedTransactionResponse>;
+    getTransaction(txHashOrTrackingId: string): Promise<TransactionInfosResponse>;
     getRpcUrl(): string;
     getToken(): string;
 }

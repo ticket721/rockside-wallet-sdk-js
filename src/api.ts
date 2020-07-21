@@ -1,4 +1,4 @@
-import fetch         from 'cross-fetch';
+import fetch from 'cross-fetch';
 
 export type RocksideNetwork = [3, 'ropsten'] | [1, 'mainnet'];
 
@@ -8,6 +8,50 @@ export type RocksideApiOpts = {
   apikey?: string,
   network: RocksideNetwork;
 };
+
+export type RelayedTransactionResponse = {
+  transaction_hash: string;
+  tracking_id: string;
+}
+
+export type TransactionReceiptLog = {
+  address: string;
+  block_hash: string;
+  block_number: number;
+  data: string;
+  log_index: number;
+  removed: boolean;
+  topics: string[];
+  transaction_hash: string;
+  transaction_index: number;
+  id: string;
+}
+
+export type TransactionReceipt = {
+  status: number;
+  cumulative_gas_used: number;
+  logs: TransactionReceiptLog[];
+  transaction_hash: string;
+  contract_address: string;
+  gas_used: number;
+  block_hash: string;
+  block_number: number;
+  transaction_index: number;
+}
+
+export type TransactionInfosResponse = {
+  transaction_hash: string;
+  tracking_id: string;
+  from: string;
+  to: string;
+  data_length: number;
+  value: number;
+  gas: number;
+  gas_price: number;
+  chain_id: number;
+  receipt: TransactionReceipt;
+  status: "success" | "failure",
+}
 
 export type ExecuteTransaction = {
   relayer: string,
@@ -249,7 +293,7 @@ export class RocksideApi {
 
   async deployIdentityContract(address: string): Promise<{ address: string, txHash: string }> {
     const route = `/ethereum/${this.opts.network[1]}/contracts/relayableidentity`;
-    const resp = await this.send(route, 'POST', {account: address});
+    const resp = await this.send(route, 'POST', { account: address });
 
     if (resp.status != 201) {
       throw await this.extractError(resp);
@@ -257,7 +301,7 @@ export class RocksideApi {
 
     const json = await resp.json();
 
-    return {address: json['address'], txHash: json['transaction_hash']};
+    return { address: json['address'], txHash: json['transaction_hash'] };
   }
 
   async getRelayParams(identity: string, account: string, channel: number): Promise<{ nonce: number, relayer: string }> {
@@ -273,10 +317,10 @@ export class RocksideApi {
 
     const json = await resp.json();
 
-    return { nonce: Number(json['nonce']), relayer: json['relayer']};
+    return { nonce: Number(json['nonce']), relayer: json['relayer'] };
   }
 
-  async relayTransaction(identity: string, tx: ExecuteTransaction): Promise<string> {
+  async relayTransaction(identity: string, tx: ExecuteTransaction): Promise<RelayedTransactionResponse> {
     const route = `/ethereum/${this.opts.network[1]}/contracts/relayableidentity/${identity}/relayExecute`;
     const resp = await this.send(route, 'POST', {
       relayer: tx.relayer,
@@ -293,7 +337,23 @@ export class RocksideApi {
 
     const json = await resp.json();
 
-    return json['transaction_hash'];
+    return {
+      transaction_hash: json['transaction_hash'],
+      tracking_id: json['tracking_id']
+    };
+  }
+
+  async getTransaction(txHashOrTrackingId: string): Promise<TransactionInfosResponse> {
+    const route = `/ethereum/${this.opts.network[1]}/transactions/${txHashOrTrackingId}/`;
+    const resp = await this.send(route, 'GET', null);
+
+    if (resp.status != 200) {
+      throw await this.extractError(resp);
+    }
+
+    const json = await resp.json();
+
+    return json as TransactionInfosResponse;
   }
 
   getRpcUrl(): string {

@@ -150,11 +150,13 @@ export class Rockside {
     });
     const signature = await signer.sign(hash);
 
-    return this.api.relayTransaction(identity, {
+    const transaction_response = await this.api.relayTransaction(identity, {
       ...tx,
       from: signer.getAddress(),
       signature,
     });
+
+    return transaction_response.transaction_hash;
   }
 }
 
