@@ -344,7 +344,7 @@ export class RocksideApi {
   }
 
   async getTransaction(txHashOrTrackingId: string): Promise<TransactionInfosResponse> {
-    const route = `/ethereum/${this.opts.network[1]}/transactions/${txHashOrTrackingId}/`;
+    const route = `/ethereum/${this.opts.network[1]}/transactions/${txHashOrTrackingId}`;
     const resp = await this.send(route, 'GET', null);
 
     if (resp.status != 200) {
